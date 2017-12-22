@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if seo_object.title_override %}
+        {{ seo_object.title_override }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block meta_description %}
+    {% if seo_object.meta_description_override %}
+        {{ seo_object.meta_description_override }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {% if seo_object.block_indexing %}
+        <meta name="robots" content="noindex"/>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}
