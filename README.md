@@ -38,15 +38,15 @@ Django app which provides abstract SEO mixin and a corresponding template to ove
   # static_page.html
   {% extends 'base.html' %}
 
-  {% override_title None 'default_title' %}
+  {% override_title page %}
 
-  {% override_description None 'some_description' %}
+  {% override_description 'Make sure this is my description' %}
 
-  {% block_indexing None 'test' %}
+  {% block_indexing page %}
 
   ```
 
-3. In your views put the model object that extends `SearchEngineOptimizableEntity` to the context as `seo_object`:
+3. In your views put the model object that extends `SearchEngineOptimizableEntity` to the context:
 
   ```python
   # views.py
@@ -57,5 +57,5 @@ Django app which provides abstract SEO mixin and a corresponding template to ove
           page = StaticPage.objects.get(pk=1)
       except StaticPage.DoesNotExist:
           raise Http404("Page does not exist")
-      return render(request, 'static_page.html', {'seo_object': page})
+      return render(request, 'static_page.html', {'my_page': page})
   ```
