@@ -8,12 +8,10 @@ class SearchEngineOptimizableEntity(models.Model):
 
     meta_description_override = models.TextField(
         verbose_name=_("SEO: Meta description override"),
-        null=True,
         blank=True,
         max_length=500)
     title_override = models.CharField(
         verbose_name=_("SEO: Title override"),
-        null=True,
         blank=True,
         max_length=120)
     block_indexing = models.BooleanField(

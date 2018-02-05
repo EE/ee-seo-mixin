@@ -32,19 +32,21 @@ Django app which provides abstract SEO mixin and a corresponding template to ove
       ...
   ```
 
-2. In your templates you now have 3 templatetags to use:
+2. In your templates you now may use 3 additional templatetags:
 
-  ```python
+  ```
   # static_page.html
   {% extends 'base.html' %}
 
-  {% override_title page %}
+  {% override_title my_page default="Welcome!"%}
 
-  {% override_description 'Make sure this is my description' %}
+  {% override_description my_page default='My default description if my_page does not have any' %}
 
-  {% block_indexing page %}
+  {% block_indexing my_page default=True %}
 
   ```
+
+    Each tag takes two arguments. The first one should be an instance of _SearchEngineOptimizableEntity_ and the second one is a default (fallback) value.
 
 3. In your views put the model object that extends `SearchEngineOptimizableEntity` to the context:
 

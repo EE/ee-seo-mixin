@@ -13,39 +13,50 @@ class SeoTemplateTagsTest(ModelMixinTestCase):
             block_indexing=True
         )
 
-    def render_template(self, string, context=None):
-        context = context or {}
+        self.empty_seo_obj = self.model.objects.create(
+            meta_description_override='',
+            title_override='',
+            block_indexing=False
+        )
+
+    def render_template(self, string, context):
         context = Context(context)
         return Template(string).render(context)
 
-    def custom_assert_equal(self, template_str, result, context=None):
+    def assert_template_renders_to(self, template_str, result, context):
         rendered = self.render_template(
             '{% load seo_tags %}' + template_str, context)
         self.assertEqual(rendered, result)
 
     def test_title_override(self):
-        self.custom_assert_equal('{% override_title "test_title" %}', 'test_title')
-        self.custom_assert_equal('{% override_title seo_obj %}', 'Custom title', context={'seo_obj': self.seo_obj})
+        self.assert_template_renders_to('{% override_title None default="test_title" %}', 'test_title', {})
+        self.assert_template_renders_to('{% override_title seo_obj default="Test" %}', 'Custom title',
+                                        context={'seo_obj': self.seo_obj})
 
     def test_description_override(self):
-        self.custom_assert_equal('{% override_description "test_description" %}', 'test_description')
-        self.custom_assert_equal('{% override_description seo_obj %}', 'Test description',
-                                 context={'seo_obj': self.seo_obj})
+        self.assert_template_renders_to('{% override_description None default="test_description" %}',
+                                        'test_description', {})
+        self.assert_template_renders_to('{% override_description seo_obj default="description"%}',
+                                        'Test description',
+                                        context={'seo_obj': self.seo_obj})
 
     def test_block_indexing(self):
-        self.custom_assert_equal('{% block_indexing False %}', '')
-        self.custom_assert_equal('{% block_indexing None %}', '')
-        self.custom_assert_equal('{% block_indexing "yes" %}', '<meta name="robots" content="noindex"/>')
-        self.custom_assert_equal('{% block_indexing True %}', '<meta name="robots" content="noindex"/>')
-        self.custom_assert_equal('{% block_indexing seo_obj %}', '<meta name="robots" content="noindex"/>',
-                                 context={'seo_obj': self.seo_obj})
+        self.assert_template_renders_to('{% block_indexing False default=False%}', '', {})
+        self.assert_template_renders_to('{% block_indexing None default=False%}', '', {})
+        self.assert_template_renders_to('{% block_indexing "yes" default=False%}', '', {})
+        self.assert_template_renders_to('{% block_indexing True default=False%}', '', {})
+        self.assert_template_renders_to('{% block_indexing "yes" default=True%}',
+                                        '<meta name="robots" content="noindex"/>', {})
+        self.assert_template_renders_to('{% block_indexing seo_obj default=False%}',
+                                        '<meta name="robots" content="noindex"/>',
+                                        context={'seo_obj': self.seo_obj})
 
     def test_errors(self):
         with self.assertRaises(TemplateSyntaxError):
-            self.render_template('{% load seo_tags %}{% block_indexing %}')
+            self.render_template('{% load seo_tags %}{% block_indexing %}', {})
         with self.assertRaises(TemplateSyntaxError):
-            self.render_template('{% load seo_tags %}{% override_description seo_obj None %}',
+            self.render_template('{% load seo_tags %}{% override_description seo_obj %}',
                                  context={'seo_obj': self.seo_obj})
         with self.assertRaises(TemplateSyntaxError):
-            self.render_template("{% load seo_tags %}{% override_title seo_obj 'my_title' %}",
+            self.render_template("{% load seo_tags %}{% override_title 'my_title' %}",
                                  context={'seo_obj': self.seo_obj})
