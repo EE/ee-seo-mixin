@@ -38,26 +38,12 @@ Django app which provides abstract SEO mixin and a corresponding template to ove
   # static_page.html
   {% extends 'base.html' %}
 
-  {% override_title my_page default="Welcome!"%}
+  {% override_title my_page default=my_page.title %}
 
   {% override_description my_page default='My default description if my_page does not have any' %}
 
-  {% block_indexing my_page default=True %}
+  {% block_indexing my_page default=False %}
 
   ```
 
     Each tag takes two arguments. The first one should be an instance of _SearchEngineOptimizableEntity_ and the second one is a default (fallback) value.
-
-3. In your views put the model object that extends `SearchEngineOptimizableEntity` to the context:
-
-  ```python
-  # views.py
-  from .models import StaticPage
-
-  def static_page_view(request):
-      try:
-          page = StaticPage.objects.get(pk=1)
-      except StaticPage.DoesNotExist:
-          raise Http404("Page does not exist")
-      return render(request, 'static_page.html', {'my_page': page})
-  ```
